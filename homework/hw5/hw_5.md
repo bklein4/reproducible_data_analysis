@@ -1,37 +1,33 @@
+hw\_05
+================
+Barbara Klein
 
------
+DIRECTIONS Use ?nycflights13::flights to see the documentation of
+flights. (You can’t really show this in an RMarkdown document) Use the
+glimpse() function to get a general sense of the flights data frame. How
+many rows and columns does flights have? Use filter() to create a data
+frame of just the flights that departed 2 hours late or more. What
+fraction of flights departed at least 2 hours late? Use mutate() and
+paste0() to create a column that contains the combined airline and
+flight number (e.g., “UA5041”). Use group\_by(), summarise(), and n() to
+make a data frame showing how many flights each aircraft (tail\_num())
+flew for each carrier throughout the whole data set.
 
-title: “hw\_05” author: “Barbara Klein” output: github\_document
+START OF HW-05
 
-## R Markdown
-
-# DIRECTIONS
-
-\#Use ?nycflights13::flights to see the documentation of flights. (You
-can’t really show this in an RMarkdown document) \#Use the glimpse()
-function to get a general sense of the flights data frame. How many rows
-and columns does flights have? \#Use filter() to create a data frame of
-just the flights that departed 2 hours late or more. What fraction of
-flights departed at least 2 hours late? \#Use mutate() and paste0() to
-create a column that contains the combined airline and flight number
-(e.g., “UA5041”). \#Use group\_by(), summarise(), and n() to make a data
-frame showing how many flights each aircraft (tail\_num()) flew for each
-carrier throughout the whole data set.
-
-# START OF HW-05
-
-    ## -- Attaching packages ------------------------------------------------- tidyverse 1.3.0 --
+    ## -- Attaching packages ------------------------------------------------------- tidyverse 1.3.0 --
 
     ## v ggplot2 3.3.2     v purrr   0.3.4
     ## v tibble  3.0.3     v dplyr   1.0.2
     ## v tidyr   1.1.2     v stringr 1.4.0
     ## v readr   1.3.1     v forcats 0.5.0
 
-    ## -- Conflicts ---------------------------------------------------- tidyverse_conflicts() --
+    ## -- Conflicts ---------------------------------------------------------- tidyverse_conflicts() --
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
 
 ``` r
+#1
 ?nycflights13::flights
 ```
 
@@ -69,7 +65,8 @@ glimpse(flights)
 ```
 
 ``` r
-# Filter and create a data frame of just the flights that departed 2 hrs late or more (this means 2 hours AND more than that, so >= 2)
+#2
+#Filter and create a data frame of just the flights that departed 2 hrs late or more (this means 2 hours AND more than that, so >= 2)
 dep_delay2hrs <- filter(flights, dep_delay >= 2)
 glimpse (dep_delay2hrs)
 ```
@@ -97,11 +94,12 @@ glimpse (dep_delay2hrs)
     ## $ time_hour      <dttm> 2013-01-01 05:00:00, 2013-01-01 05:00:00, 2013-01-0...
 
 ``` r
-# Out of 336,776 flights, 120,382 of them departed two hours late or more (so ~35% of flights).
+#Out of 336,776 flights, 120,382 of them departed two hours late or more (so ~35% of flights).
 ```
 
 ``` r
-# Use mutate and paste functions to make a whole new column with carrier and flight number combined.
+#3
+#Use mutate and paste functions to make a whole new column with carrier and flight number combined.
 flight_carrier_combo <- mutate(flights, 
                                carrier_flights_combo = paste0(carrier, flight))
 glimpse(flight_carrier_combo)
@@ -131,11 +129,12 @@ glimpse(flight_carrier_combo)
     ## $ carrier_flights_combo <chr> "UA1545", "UA1714", "AA1141", "B6725", "DL461...
 
 ``` r
-# Now there is an extra column all the way at the bottom (20 instead of 19).
+#Now there is an extra column all the way at the bottom (20 instead of 19).
 ```
 
 ``` r
-# make a data frame showing how many flights each aircraft (tail_num()) flew for each carrier using the group_by(), summarise(), and n() functions. 
+#4
+#make a data frame showing how many flights each aircraft (tail_num()) flew for each carrier using the group_by(), summarise(), and n() functions. 
 grouped_flights <- flights %>%
   group_by(carrier, tailnum) %>%
   summarise(grouped_flights = n()) 
