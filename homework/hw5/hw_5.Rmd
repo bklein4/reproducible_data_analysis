@@ -1,53 +1,39 @@
 ---
-title: "hw_05"
-author: "Barbara Klein"
-date: "9/26/2020"
-output: github_document
+output:
+  github_document: default
+  html_document: default
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+---
+title: "hw_05"
+author: "Barbara Klein"
+output: github_document
+
 
 ## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
-
-
 ######## DIRECTIONS ###########
-#Use ?nycflights13::flights to see the documentation of flights. (You can’t really show this in an RMarkdown document, but please do it.)
+#Use ?nycflights13::flights to see the documentation of flights. (You can’t really show this in an RMarkdown document)
 #Use the glimpse() function to get a general sense of the flights data frame. How many rows and columns does flights have?
 #Use filter() to create a data frame of just the flights that departed 2 hours late or more. What fraction of flights departed at least 2 hours late?
 #Use mutate() and paste0() to create a column that contains the combined airline and flight number (e.g., “UA5041”).
 #Use group_by(), summarise(), and n() to make a data frame showing how many flights each aircraft (tail_num()) flew for each carrier throughout the whole data set.
 
 ################################# START OF HW-05 ######################################
-```{r}
+```{r setup, echo=FALSE}
 library(tidyverse)
-install.packages("nycflights13")
+library(dplyr)
 library(nycflights13)
+```
+
+```{r glimpse, echo=TRUE}
 ?nycflights13::flights
 glimpse(flights)
 
 #There are 336,776 
 #There are 19 Columns
 ```
+
 ```{r}
 
 # Filter and create a data frame of just the flights that departed 2 hrs late or more (this means 2 hours AND more than that, so >= 2)
@@ -60,7 +46,6 @@ glimpse (dep_delay2hrs)
 
 ```{r}
 # Use mutate and paste functions to make a whole new column with carrier and flight number combined.
-library(nycflights13)
 flight_carrier_combo <- mutate(flights, 
                                carrier_flights_combo = paste0(carrier, flight))
 glimpse(flight_carrier_combo)
