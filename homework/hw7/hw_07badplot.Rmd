@@ -1,0 +1,43 @@
+---
+title: "hw_7"
+author: "Barbara Klein"
+date: "10/7/2020"
+output: github_document
+---
+
+############ Horribly Terrifying GGPLOT! BEWARE! ##############
+
+```{r setup, echo=FALSE} 
+library (tidyverse)
+library (ggplot2)
+read.csv ("heart_failure_dataset.csv")
+df <- as.data.frame("heart_failure_dataset.csv")
+heart_failure_dataset <- read.csv("heart_failure_dataset.csv")
+theme_set(theme_bw())
+badplot <- ggplot(heart_failure_dataset, aes(DEATH_EVENT, smoking)) +
+  labs(title = "Smoking Age Death Diabetes")
+badplot + geom_jitter(aes(col=diabetes, size=age)) +
+  geom_smooth(aes(group = diabetes), method="lm", show.legend = TRUE) +
+  scale_x_binned() + scale_y_binned()
+```
+
+- This plot is a wreck due to the undistinguishable group of bubbles in all four corners of the plot. These bubbles should clearly depict the age of individuals (bubble size), whether they had diabetes or not, and also should be SCATTERED, not binned along each axis. 
+- The x-axis as a death event should not have a range from 0.1 to 0.9 due to the fact that someone can't be 0.8 arbitrary units away from dying... that's just preposterous.
+- The graph title is a poor explanation of what the graph is actually plotting. Instead of it being organised and clearly titled, it's a jumbled mixture of words with almost no context. 
+- The bubble groupings don't even depict how many people were examined. 
+- The two smooth lines don't have any bubbles around them, giving absolutely no context for their purpose. 
+
+```{r, echo=FALSE}
+library (tidyverse)
+library (ggplot2)
+read.csv("data/heart_failure_dataset.csv")
+df <- as.data.frame("heart_failure_dataset")
+heart_failure_dataset <- read.csv("data/heart_failure_dataset.csv")
+theme_set(theme_bw())
+badplot <- ggplot(heart_failure_dataset, aes(age, DEATH_EVENT)) +
+  labs(title = "Deaths By Age and Underlying Health Conditions", labels=c("0", "1"))
+badplot + geom_jitter(aes(col=diabetes, size=smoking), width = .3, size=2) +
+geom_smooth(aes(group = diabetes), method="lm", show.legend = TRUE) 
+```
+
+- This is a good plot compared to the bad one because the points are clearly separated and easy to read. There is also a well defined age range on the x-axis, as well as a "death event" occurring on the y-axis where 0 is no death and 1.0 is a confirmed death. The diabetes scaled dots are easy to distinguish in color as having no diabetes vs the individual clearly having diabetes. The title is well phrased to clearly indicate the meaning of the data being conveyed in the graph. 
