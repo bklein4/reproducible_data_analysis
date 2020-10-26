@@ -1,0 +1,61 @@
+---
+title: "hw_5"
+author: "Barbara Klein"
+output:
+  github_document: default
+---
+
+DIRECTIONS 
+Use ?nycflights13::flights to see the documentation of flights. (You can’t really show this in an RMarkdown document)
+Use the glimpse() function to get a general sense of the flights data frame. How many rows and columns does flights have?
+Use filter() to create a data frame of just the flights that departed 2 hours late or more. What fraction of flights departed at least 2 hours late?
+Use mutate() and paste0() to create a column that contains the combined airline and flight number (e.g., “UA5041”).
+Use group_by(), summarise(), and n() to make a data frame showing how many flights each aircraft (tail_num()) flew for each carrier throughout the whole data set.
+
+START OF HW-05 
+```{r setup, echo=FALSE}
+library(tidyverse)
+library(dplyr)
+library(nycflights13)
+```
+
+```{r glimpse, echo=TRUE}
+#1
+?nycflights13::flights
+glimpse(flights)
+
+#There are 336,776 
+#There are 19 Columns
+```
+
+```{r}
+#2
+#Filter and create a data frame of just the flights that departed 2 hrs late or more (this means 2 hours AND more than that, so >= 2)
+dep_delay2hrs <- filter(flights, dep_delay >= 2)
+glimpse (dep_delay2hrs)
+
+#Out of 336,776 flights, 120,382 of them departed two hours late or more (so ~35% of flights).
+```
+
+
+```{r}
+#3
+#Use mutate and paste functions to make a whole new column with carrier and flight number combined.
+flight_carrier_combo <- mutate(flights, 
+                               carrier_flights_combo = paste0(carrier, flight))
+glimpse(flight_carrier_combo)
+#Now there is an extra column all the way at the bottom (20 instead of 19).
+```
+                                  
+```{r}
+#4
+#make a data frame showing how many flights each aircraft (tail_num()) flew for each carrier using the group_by(), summarise(), and n() functions. 
+grouped_flights <- flights %>%
+  group_by(carrier, tailnum) %>%
+  summarise(grouped_flights = n()) 
+glimpse(grouped_flights)  
+
+#Now there are 4,067 rows, 3 columns, and 16 unique groups. 
+#This is a test commit for Cameron          
+```
+
