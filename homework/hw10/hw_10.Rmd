@@ -2,9 +2,7 @@
 title: "HW10"
 author: "Barbara Klein"
 date: "11/11/2020"
-output:
-  word_document: default
-  html_document: default
+output: github_document
 ---
 
 ## PART 1 - Linear models: 
