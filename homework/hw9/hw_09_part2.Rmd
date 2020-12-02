@@ -2,11 +2,7 @@
 title: "hw_09_part2"
 author: "Barbara Klein"
 date: "11/1/2020"
-output:
-  word_document: default
-  html_document:
-    df_print: paged
-github_markdown: default
+output: github_document
 ---
 
 ##### 1. Write a function to calculate variance of a numeric vector.
