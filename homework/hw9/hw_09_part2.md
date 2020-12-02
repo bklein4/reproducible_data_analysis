@@ -1,9 +1,11 @@
 ---
 title: "hw_09_part2"
 author: "Barbara Klein"
-output: 
-  html_document: default
-  github document: default
+date: "11/1/2020"
+output:
+  html_document:
+    df_print: paged
+github_markdown: default
 ---
 
 ##### 1. Write a function to calculate variance of a numeric vector.
@@ -35,14 +37,27 @@ functionforbothNA(
 The output R gives, explains that within my numeric vectors of the same length, two of the positions are the same in that they both have NA values in the same place. 
 
 ##### 3. Write a function to create a specific kind of plot, with useful labels, etc., that can take a data frame as an argument. 
+```{r}
+class(mtcars)
+mtcars[c("mpg", "cyl")]
+```
+
 
 ```{r}
-plotz <- function(poohbear){
-ggplot(aes(x=cyl, y=mpg)) +
-  geom_point() + 
-  labs(x = "Cylinder", y = "Miles per Gallon (US)")
-  plotz
+library(ggplot2)
+plotz <- function(){
+some_plot <- ggplot(data = mtcars, 
+                    aes(x= cyl, 
+                        y= mpg)) +
+                    geom_point() + 
+                    labs(x = "Cylinder", 
+                         y = "Miles per Gallon (US)")
+print(some_plot)
+return(mtcars)
+  
 }
+#In my global environment, plotz function shows up with the argument (poohbear).
+plotz()
 ```
 
 ##### 4. Write a function that takes one argument and does the following:
