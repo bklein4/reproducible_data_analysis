@@ -1,0 +1,333 @@
+---
+title: "Final Project"
+author: "Barbara Klein and Lovell Smith"
+date: "12/6/2020"
+output: github_document
+---
+
+### The intended rationale for this project (submitted during hw9) ended up being a little more than Lovell and I could handle. Upon direction from the course instructor, we pre-processed the data file 'grinches.csv', to make a series of scatter plots regarding the data collected at each depth from a 2004 research cruise in the Ross Sea. Kriging was our original plan, but we didn't have enough data (or the right data) to carry out such an analysis. The following markdown file will show various ways to pre-process the mapping file, as well as different avenues on creating plots to visualize the data. 
+
+
+- The .csv file can be found in the 'data' folder.
+- The 'Rproj' was reassigned from "NONE" to a new Rproj. within the 'micro_490' folder. This made accessing the .csv file much easier for R to find and retrieve. 
+- Some pre-processing may look different than previously submitted due to the project itself being changed. 
+
+
+#### We will begin pre-processing to create a tidyformat data frame. 
+- Make sure you have tidyverse to access both dplyr and ggplot2.
+```{r setup, include=TRUE}
+library(tidyverse)
+grinches_full <- read.csv(file = "C:/Users/User/Documents/micro_490/reproducible_data_analysis/data/grinches/grinches.csv", 
+                          header = TRUE, 
+                          na.strings = c(""," ", "ND", "NA")
+                          ) 
+```
+
+- We will rename in R as 'grinches_full' alluding to the fully unaltered file. Here we say header = TRUE where the first row are names of the proceeding columns.
+- 'na.strings' allows us to go through the .csv file and remove any empty cells - (""), cells with one space in them - (" "), or cells with "ND" (for NO DATA").
+
+```{r}
+grinches_tibble <- as_tibble(grinches_full) #make grinches_full data set as a tibble
+grinches_tibble 
+```
+- As we’re looking at the tibble, there are undesirable names, so we will rename them with the dplyr::rename() function which comes with tidyverse. We also don't need columns "SampleID", "BarcodeSequence", "Depth", "Sample.Name.", "LinkerPrimer", "Description", "Tube.number", "Preserved.For", "X", or "X.1" since we don't need repeat data, or data pertaining to DNA extractions. These will be 'dropped' with the dplyr::select(-c()) function.
+
+```{r}
+colnames(grinches_tibble) #shows original column names
+grinches_tibble2 <- grinches_tibble %>%
+  dplyr::select(-c(
+      "ï...SampleID",
+      "Julian.Date",
+      "BarcodeSequence", 
+      "Depth", 
+      "Sample.Name.",
+      "LinkerPrimer", 
+      "Description", 
+      "Tube.number",
+      "Preserved.For", 
+      "X", 
+      "X.1", 
+   )) %>%  
+dplyr::rename(c(
+    x = LATITUDE..S., 
+    y = LONGITUDE, 
+    station = Station,
+    dir_cts = DIRECT.COUNTS,
+    chl_a = Chl.a,
+    leucine = DPM..leucine.,
+    bac_prod = Bacterial.Prod.,
+    depth_m = Depth..m., 
+    mean_no3_no2 = Mean..NO3.NO2.,
+    mean_no2 = Mean..NO2.,
+    mean_no3 = Mean..NO3.,
+    mean_dsi = Mean..DSI.,
+    mean_po4 = Mean..PO4.ÂµM.,
+    ctd_depth = CTD.DEPTH, 
+    sig_t = sigma.t, 
+    mean_nh4 = Mean..NH4.ÂµM.,
+    sal_psu = Salinity.psu,
+    degrees_c = TÂ.C,
+  )) 
+```
+- We have a desired tibble with removed columns we don't need, as well as correctly named columns for a data frame. 
+
+```{r}
+grinches_tibble2 #We see the grinches_tibble_2 outcome, but row 41 has no useful information other than "control" for every column. So we will get rid of row 41.
+grinches_tibble2 <- grinches_tibble2[-c(41),]
+grinches_tibble2 #here it prints 40 rows instead of 41
+
+```
+
+
+```{r}
+sapply(grinches_tibble2, class) #shows all variables return as characters; We need them to be numerics. 
+grinches_tibble2$depth_m <- as.numeric(as.character(grinches_tibble2$depth_m))
+str(grinches_tibble2) #now it shows depth_m as a numeric instead of a character. So we'll go ahead and use this command for our desired columns to be used in the final data frame. 
+```
+```{r}
+# Since we need numeric vectors instead of character vectors, we'll change the station name to a corresponding number, Station G9A will be station 1, Station G9B will be 2, and so on. 
+grinches_tibble2$station[grinches_tibble2$station == "G9A"] <- 1
+grinches_tibble2$station[grinches_tibble2$station == "G9B"] <- 2
+grinches_tibble2$station[grinches_tibble2$station == "G10A"] <- 3
+grinches_tibble2$station[grinches_tibble2$station == "G11D"] <- 4
+grinches_tibble2$station[grinches_tibble2$station == "G11E"] <- 5
+grinches_tibble2$station[grinches_tibble2$station == "G12A"] <- 6
+grinches_tibble2$station[grinches_tibble2$station == "G11A"] <- 7
+grinches_tibble2$station[grinches_tibble2$station == "G12D"] <- 8
+grinches_tibble2$station[grinches_tibble2$station == "G13A"] <- 9
+grinches_tibble2$station[grinches_tibble2$station == "G13B"] <- 10
+grinches_tibble2
+```
+
+```{r}
+grinches_tibble2$station <- as.numeric(as.character(grinches_tibble2$station))
+grinches_tibble2$x <- as.numeric(as.character(grinches_tibble2$x))
+grinches_tibble2$y <- as.numeric(as.character(grinches_tibble2$y))
+grinches_tibble2$dir_cts <- as.numeric(as.character(grinches_tibble2$dir_cts))
+grinches_tibble2$chl_a <- as.numeric(as.character(grinches_tibble2$chl_a))
+grinches_tibble2$leucine <- as.numeric(as.character(grinches_tibble2$leucine))
+grinches_tibble2$bac_prod <- as.numeric(as.character(grinches_tibble2$bac_prod))
+grinches_tibble2$mean_no3_no2 <- as.numeric(as.character(grinches_tibble2$mean_no3_no2))
+grinches_tibble2$mean_no2 <- as.numeric(as.character(grinches_tibble2$mean_no2))
+grinches_tibble2$mean_no3 <- as.numeric(as.character(grinches_tibble2$mean_no3))
+grinches_tibble2$mean_dsi <- as.numeric(as.character(grinches_tibble2$mean_dsi))
+grinches_tibble2$mean_po4 <- as.numeric(as.character(grinches_tibble2$mean_po4))
+grinches_tibble2$mean_nh4 <- as.numeric(as.character(grinches_tibble2$mean_nh4))
+grinches_tibble2$ctd_depth <- as.numeric(as.character(grinches_tibble2$ctd_depth))
+grinches_tibble2$sig_t <- as.numeric(as.character(grinches_tibble2$sig_t))
+grinches_tibble2$sal_psu <- as.numeric(as.character(grinches_tibble2$sal_psu))
+grinches_tibble2$degrees_c <- as.numeric(as.character(grinches_tibble2$degrees_c))
+#all specified columns have now been converted from character vectors to numeric vectors.
+```
+
+- Now we want the depth to read negative for our scatterplots.
+
+```{r}
+grinches_tibble2$depth_m <- grinches_tibble2$depth_m * -1
+grinches_tibble2 #all values now appear to be in the appropriate format.
+```
+```{r}
+grinches_df <- as.data.frame(grinches_tibble2)
+class(grinches_df) #returns "data.frame" (which is what we want)
+```
+
+```{r} 
+grinches_df[is.na(grinches_df)] <- 0 #this arguments returns the NA's as values of 0 (fine for our data analysis/scatterplots).
+grinches_df #we view the data frame where it has turned the NA's to 0. 
+```
+
+
+#### Now that we have a much cleaner data set, the next part involves comparing certain values at various depths from the different stations where sampling occurred during the cruise. The goal here is to separate each station and turn it into its own data set. We will then assign each station a color and have it all on the same graph. The first step is creating objects that represent each station: 
+
+- Each station corresponds to repeats of a specific set of coordinates in the original excel file. There are 6 stations with more than one measurement taken at depth, and 2 stations with only one measurement taken at depth, for a total of 8 stations.  
+
+- Here we will exclude all rows not associated with a specific coordinate (x and y) and its corresponding depth(s). These new stations will not be labeled same as the original grinches_df due to a number of rows having undefined values. So we'll only select rows with defined values in them. 
+
+```{r}
+stn_1 <- grinches_df[-c(6, 8:40), ]
+stn_2 <- grinches_df[-c(1:8, 15:40), ]
+stn_3 <- grinches_df[-c(1:20, 27:40), ]
+stn_4 <- grinches_df[-c(1:26, 33:40), ]
+stn_5 <- grinches_df[-c(1:33, 40), ]
+```
+
+- Now that we have our stations created with their respective measurements, the next step is to create a scatter plot that includes all of our different locations, and some variable we want plotted (for example, chl_a at depth). *Make sure to have ggplot2 in your library. Here we will layer the plot starting with station 1. 
+
+```{r}
+stn_1   #here we see the data and respective measurements for 'station 1'
+str(stn_1)    #here we see stn_1 is a data frame (needed to layer in ggplot)
+```
+
+
+```{r}
+chla_plot <- ggplot(data = stn_1, 
+                    aes(x = chl_a, 
+                        y = depth_m)) + 
+                    geom_point(size = 2) +
+                    geom_line()
+chla_plot  #the first layer of the plot shows the chl_a measurements at depth for station 1. 
+```
+```{r}
+#An option would be to continue layering the plot with each station and keep making plots for our layers.
+
+chla_1_2 <- chla_plot + geom_line(data = stn_2, 
+                      aes(x = chl_a), 
+                      color = "blue") + 
+            geom_point(data = stn_2, 
+                      aes(x = chl_a), 
+                      color = "blue",
+                      size = 2)
+chla_1_2 
+```
+
+```{r}
+#Here is a way to get view our chl_a data across each station at depth. 
+ggplot() +
+  geom_point(data = stn_1, aes(x = chl_a, 
+                               y = depth_m, 
+                               color = 'green'), 
+                               color = 'green', 
+                               size = 2) +
+  geom_line(data = stn_1, aes(x = chl_a, 
+                              y = depth_m, 
+                              color = 'green'), 
+                              color = 'green') +
+  geom_point(data = stn_2, aes(x = chl_a, 
+                               y = depth_m, 
+                               color = 'orchid'), 
+                               color = 'orchid', 
+                               size = 2) +
+  geom_line(data = stn_2, aes(x = chl_a, 
+                              y = depth_m, 
+                              color = 'orchid'), 
+                              color = 'orchid') +
+  geom_point(data = stn_3, aes(x = chl_a, 
+                               y = depth_m, 
+                               color = 'red'), 
+                               color = 'red', 
+                               size = 2) +
+  geom_line(data = stn_3, aes(x = chl_a, 
+                              y = depth_m, 
+                              color = 'red'), 
+                              color = 'red') +
+  geom_point(data = stn_4, aes(x = chl_a, 
+                               y = depth_m, 
+                               color = 'blue'), 
+                               color = 'blue', 
+                               size = 2) +
+  geom_line(data = stn_4, aes(x = chl_a, 
+                              y = depth_m, 
+                              color = 'blue'), 
+                              color = 'blue') +
+  geom_point(data = stn_5, aes(x = chl_a, 
+                               y = depth_m, 
+                               color = 'orange'), 
+                               color = 'orange', 
+                               size = 2) +
+  geom_line(data = stn_5, aes(x = chl_a, 
+                              y = depth_m, 
+                              color = 'orange'), 
+                              color = 'orange') +
+  labs(color = "Station") +
+  xlab("Mean Chl A (ug/L)") +
+  ylab("Depth (m)") +
+  ggtitle("Mean Chlorophyll A Production at Depth") 
+```
+
+- In this scatter plot, each station was assigned a color. 
+
+    * station 1: green
+    * station 2: orchid
+    * station 3: red
+    * station 4: blue
+    * station 5: orange
+ 
+- 'Geom_point' was used to plot the measurements and 'geom_line" was also used to connect these points to help visualize the trend of each station. The size of each dot was increased as well. From this graph, we can see that chlorophyll A seems to be more productive towards the surface and decreases with depth. 
+- We can use this method as a way to discover trends from other variables in the data set as well. 
+
+##### Similarly, we can use a new dataframe with all stations, and provide a simple argument to make a scatter plot instead of typing the layers of the plot line by line for each station. 
+
+```{r}
+all_stns <- rbind(stn_1, stn_2, stn_3, stn_4, stn_5)  #this combines all previously made data frames from above.
+all_stns #we will keep the original station number in this data frame (same number as grinches_df). 
+```
+```{r}
+chla_allstns <- ggplot(all_stns, 
+                       aes(x = chl_a, 
+                           y = depth_m, 
+                           color = as.factor(station))) +
+  geom_point() +
+  geom_line() +
+  xlab("Mean Chl A (ug/L)") +
+  ylab("Depth (m)") +
+  ggtitle("Mean Chlorophyll A Production at Depth") +
+  labs(color = "Station") +
+  theme(legend.key = element_rect("white"))
+
+chla_allstns + scale_color_manual(breaks = c("1", "3", "6", "7", "9"),
+                                  values = c("green", "orchid", "red", "blue", "orange"))
+                                                    
+```
+
+- Here (scatterplot above) is a much faster and simpler way to utilize the data in a straightforward manner to view the chl_a data. 
+
+- We can create a similar graph for other measurements by adjusting the x axis parameter. For example, Mean Phosphate Measurements at Depth:
+
+```{r}
+meanpo4_allstns <- ggplot(all_stns, 
+                          aes(x = mean_po4, 
+                              y = depth_m, 
+                              color = as.factor(station))) +
+  geom_point() +
+  geom_line() +
+  xlab("Mean Phosphate (uM)") +
+  ylab("Depth (m)") +
+  ggtitle("Mean Phosphate Measurement at Depth") +
+  labs(color = "Station") +
+  theme(legend.key = element_rect("white"))
+
+meanpo4_allstns + scale_color_manual(breaks = c("1", "3", "6", "7", "9"),
+                                     values = c("green", "orchid", "red", "blue", "orange"))
+```
+
+#### Alternatively, if we wanted to view mean_no2_no3 (mean nitrate and nitrite) at all stations, we could facet wrap the scatter plot and compare each at depth.
+
+```{r}
+# To view station mean_no3_no2 vs. temperature at depth:
+meanN_plot <- ggplot(data = all_stns, 
+                     aes(x = degrees_c, 
+                         y = mean_no3_no2, 
+                         color = as.factor(station))) +
+                     geom_point()
+
+meanN_plot + 
+  facet_wrap(~ depth_m) +
+  scale_color_manual(breaks = c("1", "3", "6", "7", "9"),
+                     values = c("green", "orchid", "red", "blue", "orange")) +
+  ggtitle("Mean Nitrate/Nitrite vs. Temperature At Depth") +
+  xlab("Degrees (C)") +
+  ylab("Mean NO2/NO3 (uM)") +
+  labs(color = "Station")
+
+```
+
+- Now we'll view all of the data for mean Bacterial Direct Counts vs Temperature in the all_stns data frame and use the facet wrap method to view these data at depth.
+
+```{r}
+dircts_plot <- ggplot(data = all_stns, 
+                      aes(x = degrees_c, 
+                          y = dir_cts, 
+                          color = as.factor(station))) +
+                      geom_point()
+
+dircts_plot + 
+  facet_wrap(~ depth_m) +
+  scale_color_manual(breaks = c("1", "3", "6", "7", "9"),
+                     values = c("green", "orchid", "red", "blue", "orange")) +
+  ggtitle("Bacterial Direct Counts vs. Temperature At Depth") +
+  xlab("Degrees (C)") +
+  ylab("Bacterial Direct Counts (cells/mL)") +
+  labs(color = "Station")
+```
+
+#### There are a variety of ways to analyze these data, all of which may be useful for a specified outcome. Here, we set out to show meaningful relationships with more than just two aspects of the data frame grinches_df. From the production of these plots, patterns regarding both abiotic and biotic measurements are apparent as both temperature and depth begin to decrease.
